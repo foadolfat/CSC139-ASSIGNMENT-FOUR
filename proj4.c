@@ -23,12 +23,10 @@ int main(int arg, char* argv[]){
   int ref[numOfFrames];
  
   while(j<requests){
-   //pageToUnload=0;
    fscanf(input, "%d", &n);
    int flagExist=0;
-   int i=0;
+   int i;
    for(i=0; i<numOfFrames; i++){
-    ref[i]=0;
     if(frame[i]==n){
      printf("Page %d already in Frame %d\n", n, i);
      flagExist=1;
@@ -42,18 +40,13 @@ int main(int arg, char* argv[]){
      printf("Page %d loaded into Frame %d\n", n, frameFree);
      frameFree++;
     }else{
-     int i=0;
-     for(i=0; i<numOfFrames; i++){
-      if(ref[i]==1){
-       ref[i]=0;
-       pageToUnload=(pageToUnload+1%numOfFrames);
-       break;
-      }
-      //pageToUnload=(pageToUnload%numOfFrames)+1;
-     }
+     while(ref[pageToUnload]==1){
+      ref[pageToUnload]=0;
+      pageToUnload=(pageToUnload+1)%numOfFrames;
+     }     
      printf("Page %d unloaded from Frame %d, Page %d loaded into Frame %d \n", frame[pageToUnload], pageToUnload, n, pageToUnload);
      frame[pageToUnload]=n;
-     pageToUnload=(pageToUnload%numOfFrames);
+     pageToUnload=(pageToUnload+1)%numOfFrames;
     } 
    }
    j++;

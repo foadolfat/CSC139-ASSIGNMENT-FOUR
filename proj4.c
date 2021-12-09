@@ -14,8 +14,52 @@ int main(int arg, char* argv[]){
  fscanf(input, "%d", &requests);
  
  frame = (int*)malloc(numOfFrames*sizeof(int));
+ if(strcmp(argv[2], "CLOCK")==0){
+  printf("**CLOCK**\n");
+  int frameFree=0;
+  int pageToUnload=0;
+  int pageFaults=0;
+  int j=0;
+  int ref[numOfFrames];
  
- if(strcmp(argv[2], "LRU")==0){
+  while(j<requests){
+   //pageToUnload=0;
+   fscanf(input, "%d", &n);
+   int flagExist=0;
+   int i=0;
+   for(i=0; i<numOfFrames; i++){
+    ref[i]=0;
+    if(frame[i]==n){
+     printf("Page %d already in Frame %d\n", n, i);
+     flagExist=1;
+     ref[i]=1;
+    }
+   }
+   if(flagExist==0){
+    pageFaults++;
+    if(frameFree<numOfFrames){
+     frame[frameFree]=n;
+     printf("Page %d loaded into Frame %d\n", n, frameFree);
+     frameFree++;
+    }else{
+     int i=0;
+     for(i=0; i<numOfFrames; i++){
+      if(ref[i]==1){
+       ref[i]=0;
+       pageToUnload=(pageToUnload+1%numOfFrames);
+       break;
+      }
+      //pageToUnload=(pageToUnload%numOfFrames)+1;
+     }
+     printf("Page %d unloaded from Frame %d, Page %d loaded into Frame %d \n", frame[pageToUnload], pageToUnload, n, pageToUnload);
+     frame[pageToUnload]=n;
+     pageToUnload=(pageToUnload%numOfFrames);
+    } 
+   }
+   j++;
+  }
+  printf("%d page faults\n", pageFaults);
+ }else if(strcmp(argv[2], "LRU")==0){
   printf("**LRU**\n");
   int* usage = (int*)malloc(numOfFrames*sizeof(int));
   int frameFree=0;
@@ -57,6 +101,8 @@ int main(int arg, char* argv[]){
    timer++;
   }
   printf("%d page faults\n", pageFaults);
+ }else{
+  printf("Invalid option\nUsage: ./proj4 <INPUT FILE NAME> <LRU | CLOCK>\n");
  }
 
 }

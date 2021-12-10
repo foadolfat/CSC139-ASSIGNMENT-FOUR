@@ -2,48 +2,49 @@
 #include <stdlib.h>
 
 FILE* input;
-int n;
-int numOfPages, numOfFrames, requests;
+int n, numOfPages, numOfFrames, requests;
 int* frame;
 int frameFree=0;
-int pageToUnload=0;
+int unload=0;
 int pageFaults=0;
 int j=0;
 int timer=0;
 
 void lru(){
  printf("LRU\n");
- int* usage = (int*)malloc(numOfFrames*sizeof(int));
- while(1==fscanf(input, "%d", &n)){
+ int on[numOfFrames]; 
+
+ while(fscanf(input, "%d", &n)==1){
   int exists=0;
-  int i;
-  for(i=0; i<numOfFrames; i++){
+  int i=0;
+  while(i<numOfFrames){
    if(frame[i]==n){
     printf("Page %d already in Frame %d\n", n, i);
-    usage[i]=timer;
+    on[i]=timer;
     exists=1;
    }
+   i++;
   }
   if(exists==0){
    pageFaults++;
    if(frameFree<numOfFrames){
     frame[frameFree]=n;
-    usage[frameFree]=timer;
+    on[frameFree]=timer;
     printf("Page %d loaded into Frame %d\n", n, frameFree);
     frameFree++;
    }else{
-    int min=usage[0];
-    int lIndex=0;
+    int min=on[0];
+    int index=0;
     int k;
     for(k=0; k<numOfFrames; k++){
-     if(usage[k]<min){
-      min=usage[k];
-      lIndex=k;
+     if(on[k]<min){
+      min=on[k];
+      index=k;
      }
     }
-    printf("Page %d unloaded from Frame %d, Page %d loaded into frame %d\n", frame[lIndex], lIndex, n, lIndex);
-    frame[lIndex]=n;
-    usage[lIndex]=timer;
+    printf("Page %d unloaded from Frame %d, Page %d loaded into frame %d\n", frame[index], index, n, index);
+    frame[index]=n;
+    on[index]=timer;
    }
   }
   timer++;
@@ -57,29 +58,30 @@ void clock(){
  
  while(j<requests){
   fscanf(input, "%d", &n);
-  int flagExist=0;
-  int i;
-  for(i=0; i<numOfFrames; i++){
+  int exists=0;
+  int i=0;
+  while(i<numOfFrames){
    if(frame[i]==n){
     printf("Page %d already in Frame %d\n", n, i);
-    flagExist=1;
+    exists=1;
     ref[i]=1;
    }
+   i++;
   }
-  if(flagExist==0){
+  if(exists==0){
    pageFaults++;
    if(frameFree<numOfFrames){
     frame[frameFree]=n;
     printf("Page %d loaded into Frame %d\n", n, frameFree);
     frameFree++;
    }else{
-    while(ref[pageToUnload]==1){
-     ref[pageToUnload]=0;
-     pageToUnload=(pageToUnload+1)%numOfFrames;
+    while(ref[unload]==1){
+     ref[unload]=0;
+     unload=(unload+1)%numOfFrames;
     }     
-    printf("Page %d unloaded from Frame %d, Page %d loaded into Frame %d \n", frame[pageToUnload], pageToUnload, n, pageToUnload);
-    frame[pageToUnload]=n;
-    pageToUnload=(pageToUnload+1)%numOfFrames;
+    printf("Page %d unloaded from Frame %d, Page %d loaded into Frame %d \n", frame[unload], unload, n, unload);
+    frame[unload]=n;
+    unload=(unload+1)%numOfFrames;
    } 
   }
   j++;
